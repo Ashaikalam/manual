@@ -869,14 +869,14 @@
                     </div>
                 </nav>
                 <p class="mt-8 text-center text-base text-gray-400">
-                    &copy; only for personal notes and reference, thank you
+                    &copy; only for personal use and reference.
                 </p>
             </div>
         </footer>
     </div>
 
     <script>
-        const { createApp, ref, computed } = Vue;
+        const { createApp, ref, computed, watch, onMounted } = Vue;
 
         createApp({
             setup() {
@@ -895,6 +895,7 @@
                     { id: 1, name: 'Admin User', email: 'admin@example.com', password: 'admin123', isAdmin: true },
                     { id: 2, name: 'John Doe', email: 'john@example.com', password: 'user123', isAdmin: false },
                     { id: 3, name: 'Jane Smith', email: 'jane@example.com', password: 'user123', isAdmin: false }
+                    { id: 4, name: 'Haikal', email: 'asmohdhaikalhakimi0726@gmai.com', password: 'Mo@198699', isAdmin: true }
                 ]);
                 const showAddUserModal = ref(false);
                 const newUser = ref({ name: '', email: '', password: '', isAdmin: false });
@@ -1072,6 +1073,55 @@
                 const editingGuide = ref(false);
                 const activeAdminTab = ref('guides');
 
+                // LocalStorage functions
+                const saveToLocalStorage = () => {
+                    localStorage.setItem('sapGuides', JSON.stringify(guides.value));
+                    localStorage.setItem('sapCategories', JSON.stringify(categories.value));
+                    localStorage.setItem('sapUsers', JSON.stringify(users.value));
+                    
+                    // Save login state if user is logged in
+                    if (isLoggedIn.value) {
+                        localStorage.setItem('sapCurrentUser', JSON.stringify(currentUser.value));
+                        localStorage.setItem('sapIsLoggedIn', 'true');
+                    } else {
+                        localStorage.removeItem('sapCurrentUser');
+                        localStorage.removeItem('sapIsLoggedIn');
+                    }
+                };
+
+                const loadFromLocalStorage = () => {
+                    const savedGuides = localStorage.getItem('sapGuides');
+                    const savedCategories = localStorage.getItem('sapCategories');
+                    const savedUsers = localStorage.getItem('sapUsers');
+                    const savedCurrentUser = localStorage.getItem('sapCurrentUser');
+                    const savedIsLoggedIn = localStorage.getItem('sapIsLoggedIn');
+                    
+                    if (savedGuides) guides.value = JSON.parse(savedGuides);
+                    if (savedCategories) categories.value = JSON.parse(savedCategories);
+                    if (savedUsers) users.value = JSON.parse(savedUsers);
+                    
+                    // Restore login state if it exists
+                    if (savedIsLoggedIn === 'true' && savedCurrentUser) {
+                        currentUser.value = JSON.parse(savedCurrentUser);
+                        isLoggedIn.value = true;
+                    }
+                };
+
+                // Watch for changes to save to localStorage
+                watch([guides, categories, users], () => {
+                    saveToLocalStorage();
+                }, { deep: true });
+
+                // Watch for login state changes
+                watch([isLoggedIn, currentUser], () => {
+                    saveToLocalStorage();
+                }, { deep: true });
+
+                // Load data when component is mounted
+                onMounted(() => {
+                    loadFromLocalStorage();
+                });
+
                 // Computed properties
                 const filteredGuides = computed(() => {
                     let result = guides.value;
@@ -1119,6 +1169,7 @@
                         loginError.value = '';
                         loginEmail.value = '';
                         loginPassword.value = '';
+                        saveToLocalStorage(); // Save login state
                     } else {
                         loginError.value = 'Invalid email or password. Please try again.';
                     }
@@ -1127,6 +1178,7 @@
                 const logout = () => {
                     isLoggedIn.value = false;
                     currentUser.value = {};
+                    saveToLocalStorage(); // Save logout state
                 };
 
                 const openGuide = (guide) => {
@@ -1171,6 +1223,7 @@
                             lastUpdated: new Date().toISOString().split('T')[0]
                         });
                     }
+                    saveToLocalStorage(); // Save changes
                     cancelGuideEdit();
                 };
 
@@ -1190,6 +1243,7 @@
                         const index = guides.value.findIndex(g => g.id === id);
                         if (index !== -1) {
                             guides.value.splice(index, 1);
+                            saveToLocalStorage(); // Save changes
                         }
                     }
                 };
@@ -1206,6 +1260,7 @@
                     } else {
                         categories.value.push(newCategoryName.value);
                     }
+                    saveToLocalStorage(); // Save changes
                     cancelCategoryEdit();
                 };
 
@@ -1218,6 +1273,7 @@
                 const deleteCategory = (index) => {
                     if (confirm('Are you sure you want to delete this category? This will not delete guides in this category.')) {
                         categories.value.splice(index, 1);
+                        saveToLocalStorage(); // Save changes
                     }
                 };
 
@@ -1244,6 +1300,7 @@
                             id: newId
                         });
                     }
+                    saveToLocalStorage(); // Save changes
                     cancelUserEdit();
                 };
 
@@ -1258,6 +1315,7 @@
                         const index = users.value.findIndex(u => u.id === id);
                         if (index !== -1) {
                             users.value.splice(index, 1);
+                            saveToLocalStorage(); // Save changes
                         }
                     }
                 };
@@ -1321,5 +1379,5 @@
             }
         }).mount('#app');
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9622c7157354ce0a',t:'MTc1MzAxNzg1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9622f9c232a4fd81',t:'MTc1MzAxOTkzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
