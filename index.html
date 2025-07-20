@@ -876,188 +876,50 @@
     </div>
 
     <script>
-        const { createApp, ref, computed } = Vue;
+        const { createApp, ref, computed, watch } = Vue;
 
         createApp({
             setup() {
-                // Authentication
-                const isLoggedIn = ref(false);
-                const currentUser = ref({});
-                const showLoginModal = ref(false);
-                const loginEmail = ref('');
-                const loginPassword = ref('');
-                const loginError = ref('');
-                const isAdmin = computed(() => currentUser.value.isAdmin === true);
-                const mobileMenuOpen = ref(false);
-
-                // User Management
-                const users = ref([
+                // Load from localStorage or set default values
+                const storedUsers = JSON.parse(localStorage.getItem('users')) || [
                     { id: 1, name: 'Admin User', email: 'admin@example.com', password: 'admin123', isAdmin: true },
                     { id: 2, name: 'John Doe', email: 'john@example.com', password: 'user123', isAdmin: false },
                     { id: 3, name: 'Jane Smith', email: 'jane@example.com', password: 'user123', isAdmin: false }
-                ]);
-                const showAddUserModal = ref(false);
+                ];
+                const storedGuides = JSON.parse(localStorage.getItem('guides')) || [];
+                const storedCategories = JSON.parse(localStorage.getItem('categories')) || [
+                    'Creating Purchase Orders', 'Invoice Clearance', 'Material Master Setup', 'Financial Reporting', 'Inventory Management', 'HR Processes'
+                ];
+                const storedCurrentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+                // Authentication
+                const isLoggedIn = ref(!!storedCurrentUser);
+        const currentUser = ref(storedCurrentUser || {});
+                                const showLoginModal = ref(false);
+        const loginEmail = ref('');
+        const loginPassword = ref('');
+        const loginError = ref('');
+        const mobileMenuOpen = ref(false);
+        const isAdmin = computed(() => currentUser.value.isAdmin === true);
+
+                // Watchers to persist data
+        watch(users, (val) => localStorage.setItem('users', JSON.stringify(val)), { deep: true });
+        watch(guides, (val) => localStorage.setItem('guides', JSON.stringify(val)), { deep: true });
+        watch(categories, (val) => localStorage.setItem('categories', JSON.stringify(val)), { deep: true });
+        watch(currentUser, (val) => localStorage.setItem('currentUser', JSON.stringify(val)));
+
+                // User Management
+                                const showAddUserModal = ref(false);
                 const newUser = ref({ name: '', email: '', password: '', isAdmin: false });
                 const editingUser = ref(false);
 
                 // Categories
-                const categories = ref([
-                    'Creating Purchase Orders',
-                    'Invoice Clearance',
-                    'Material Master Setup',
-                    'Financial Reporting',
-                    'Inventory Management',
-                    'HR Processes'
-                ]);
-                const showAddCategoryModal = ref(false);
+                                const showAddCategoryModal = ref(false);
                 const newCategoryName = ref('');
                 const editingCategoryIndex = ref(null);
 
                 // Guides
-                const guides = ref([
-                    {
-                        id: 1,
-                        title: 'Creating a Purchase Order',
-                        category: 'Creating Purchase Orders',
-                        description: 'A step-by-step guide to create a purchase order in SAP.',
-                        lastUpdated: '2023-05-15',
-                        steps: [
-                            {
-                                title: 'Navigate to the Purchase Order Transaction',
-                                description: 'Open SAP and enter transaction code ME21N in the command field and press Enter.',
-                                image: 'https://via.placeholder.com/800x450?text=ME21N+Transaction+Screen',
-                                notes: 'You can also access this through the menu path: Logistics > Materials Management > Purchasing > Purchase Order > Create > Vendor/Supplying Plant Known'
-                            },
-                            {
-                                title: 'Enter Vendor Information',
-                                description: 'Enter the vendor code in the Vendor field. If you don\'t know the vendor code, you can search by clicking the search icon.',
-                                image: 'https://via.placeholder.com/800x450?text=Vendor+Information+Screen'
-                            },
-                            {
-                                title: 'Enter Header Details',
-                                description: 'Fill in the required header information such as document date, purchasing organization, purchasing group, and company code.',
-                                image: 'https://via.placeholder.com/800x450?text=Header+Details+Screen'
-                            },
-                            {
-                                title: 'Add Line Items',
-                                description: 'Enter the material number, quantity, delivery date, and price for each item you want to order.',
-                                image: 'https://via.placeholder.com/800x450?text=Line+Items+Screen',
-                                notes: 'Make sure to verify the price and quantity before proceeding.'
-                            },
-                            {
-                                title: 'Save the Purchase Order',
-                                description: 'Click the Save button to create the purchase order. Note the purchase order number that is generated.',
-                                image: 'https://via.placeholder.com/800x450?text=Save+Purchase+Order+Screen'
-                            }
-                        ]
-                    },
-                    {
-                        id: 2,
-                        title: 'Processing an Invoice',
-                        category: 'Invoice Clearance',
-                        description: 'Learn how to process and clear vendor invoices in SAP.',
-                        lastUpdated: '2023-06-02',
-                        steps: [
-                            {
-                                title: 'Access Invoice Verification',
-                                description: 'Enter transaction code MIRO in the command field and press Enter.',
-                                image: 'https://via.placeholder.com/800x450?text=MIRO+Transaction+Screen'
-                            },
-                            {
-                                title: 'Enter Invoice Details',
-                                description: 'Enter the invoice date, reference, and amount. Also enter the vendor code.',
-                                image: 'https://via.placeholder.com/800x450?text=Invoice+Details+Screen'
-                            },
-                            {
-                                title: 'Enter Purchase Order Reference',
-                                description: 'Enter the purchase order number to which this invoice relates.',
-                                image: 'https://via.placeholder.com/800x450?text=PO+Reference+Screen',
-                                notes: 'The system will automatically populate line items from the purchase order.'
-                            },
-                            {
-                                title: 'Verify and Post the Invoice',
-                                description: 'Check that all details are correct, then click the Post button to record the invoice.',
-                                image: 'https://via.placeholder.com/800x450?text=Post+Invoice+Screen'
-                            }
-                        ]
-                    },
-                    {
-                        id: 3,
-                        title: 'Creating a Material Master Record',
-                        category: 'Material Master Setup',
-                        description: 'A comprehensive guide to setting up new materials in SAP.',
-                        lastUpdated: '2023-04-20',
-                        steps: [
-                            {
-                                title: 'Access Material Master Creation',
-                                description: 'Enter transaction code MM01 in the command field and press Enter.',
-                                image: 'https://via.placeholder.com/800x450?text=MM01+Transaction+Screen'
-                            },
-                            {
-                                title: 'Enter Material Type and Industry Sector',
-                                description: 'Select the appropriate material type (e.g., Raw Material, Finished Product) and industry sector.',
-                                image: 'https://via.placeholder.com/800x450?text=Material+Type+Screen'
-                            },
-                            {
-                                title: 'Select Views',
-                                description: 'Select the views you want to maintain for this material (e.g., Basic Data, Purchasing, Accounting).',
-                                image: 'https://via.placeholder.com/800x450?text=Views+Selection+Screen',
-                                notes: 'The views you select will determine what data you need to enter for the material.'
-                            },
-                            {
-                                title: 'Enter Organizational Levels',
-                                description: 'Enter the plant, storage location, and other organizational levels as required.',
-                                image: 'https://via.placeholder.com/800x450?text=Organizational+Levels+Screen'
-                            },
-                            {
-                                title: 'Enter Basic Data',
-                                description: 'Enter the material description, base unit of measure, and other basic information.',
-                                image: 'https://via.placeholder.com/800x450?text=Basic+Data+Screen'
-                            },
-                            {
-                                title: 'Complete Additional Views',
-                                description: 'Fill in the required fields for each selected view, such as purchasing data, accounting data, etc.',
-                                image: 'https://via.placeholder.com/800x450?text=Additional+Views+Screen'
-                            },
-                            {
-                                title: 'Save the Material Master',
-                                description: 'Click the Save button to create the material master record.',
-                                image: 'https://via.placeholder.com/800x450?text=Save+Material+Master+Screen'
-                            }
-                        ]
-                    },
-                    {
-                        id: 4,
-                        title: 'Running a Financial Report',
-                        category: 'Financial Reporting',
-                        description: 'How to generate and analyze financial reports in SAP.',
-                        lastUpdated: '2023-07-10',
-                        steps: [
-                            {
-                                title: 'Access Financial Reporting',
-                                description: 'Enter transaction code S_ALR_87012082 for the General Ledger Report.',
-                                image: 'https://via.placeholder.com/800x450?text=Financial+Reporting+Screen'
-                            },
-                            {
-                                title: 'Select Report Parameters',
-                                description: 'Enter the company code, fiscal year, and reporting period.',
-                                image: 'https://via.placeholder.com/800x450?text=Report+Parameters+Screen'
-                            },
-                            {
-                                title: 'Execute the Report',
-                                description: 'Click the Execute button to generate the report.',
-                                image: 'https://via.placeholder.com/800x450?text=Execute+Report+Screen'
-                            },
-                            {
-                                title: 'Analyze the Results',
-                                description: 'Review the report output and use the available tools to analyze the data.',
-                                image: 'https://via.placeholder.com/800x450?text=Report+Analysis+Screen',
-                                notes: 'You can export the report to Excel for further analysis by clicking the Export button.'
-                            }
-                        ]
-                    }
-                ]);
-                const selectedCategory = ref('');
+                                const selectedCategory = ref('');
                 const searchQuery = ref('');
                 const adminSearchQuery = ref('');
                 const adminSelectedCategory = ref('');
@@ -1111,23 +973,24 @@
 
                 // Methods
                 const login = () => {
-                    const user = users.value.find(u => u.email === loginEmail.value && u.password === loginPassword.value);
-                    if (user) {
-                        currentUser.value = { ...user };
-                        isLoggedIn.value = true;
-                        showLoginModal.value = false;
-                        loginError.value = '';
-                        loginEmail.value = '';
-                        loginPassword.value = '';
-                    } else {
-                        loginError.value = 'Invalid email or password. Please try again.';
-                    }
-                };
+            const user = users.value.find(u => u.email === loginEmail.value && u.password === loginPassword.value);
+            if (user) {
+                currentUser.value = { ...user };
+                isLoggedIn.value = true;
+                showLoginModal.value = false;
+                loginError.value = '';
+                loginEmail.value = '';
+                loginPassword.value = '';
+            } else {
+                loginError.value = 'Invalid email or password. Please try again.';
+            }
+        };
 
                 const logout = () => {
-                    isLoggedIn.value = false;
-                    currentUser.value = {};
-                };
+            isLoggedIn.value = false;
+            currentUser.value = {};
+            localStorage.removeItem('currentUser');
+        };
 
                 const openGuide = (guide) => {
                     selectedGuide.value = guide;
