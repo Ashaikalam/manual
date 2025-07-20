@@ -876,26 +876,35 @@
     </div>
 
     <script>
-        const { createApp, ref, computed } = Vue;
+        const { createApp, ref, computed, watch } = Vue;
 
         createApp({
             setup() {
                 // Authentication
-                const isLoggedIn = ref(false);
-                const currentUser = ref({});
-                const showLoginModal = ref(false);
-                const loginEmail = ref('');
-                const loginPassword = ref('');
-                const loginError = ref('');
-                const isAdmin = computed(() => currentUser.value.isAdmin === true);
-                const mobileMenuOpen = ref(false);
+                const isLoggedIn = ref(!!storedCurrentUser);
+        const currentUser = ref(storedCurrentUser || {});
+        const users = ref(storedUsers);
+        const guides = ref(storedGuides);
+        const categories = ref(storedCategories);
+        const showLoginModal = ref(false);
+        const loginEmail = ref('');
+        const loginPassword = ref('');
+        const loginError = ref('');
+        const mobileMenuOpen = ref(false);
+        const isAdmin = computed(() => currentUser.value.isAdmin === true);
+
+                // Watchers to persist data
+        watch(users, (val) => localStorage.setItem('users', JSON.stringify(val)), { deep: true });
+        watch(guides, (val) => localStorage.setItem('guides', JSON.stringify(val)), { deep: true });
+        watch(categories, (val) => localStorage.setItem('categories', JSON.stringify(val)), { deep: true });
+        watch(currentUser, (val) => localStorage.setItem('currentUser', JSON.stringify(val)));
 
                 // User Management
-                const users = ref([
-                    { id: 1, name: 'Admin User', email: 'admin@example.com', password: 'admin123', isAdmin: true },
-                    { id: 2, name: 'John Doe', email: 'john@example.com', password: 'user123', isAdmin: false },
-                    { id: 3, name: 'Jane Smith', email: 'jane@example.com', password: 'user123', isAdmin: false }
-                ]);
+                const storedUsers = JSON.parse(localStorage.getItem('users')) || [
+                { id: 1, name: 'Admin User', email: 'admin@example.com', password: 'admin123', isAdmin: true },
+                { id: 2, name: 'John Doe', email: 'john@example.com', password: 'user123', isAdmin: false },
+                { id: 3, name: 'Jane Smith', email: 'jane@example.com', password: 'user123', isAdmin: false }
+                ];
                 const showAddUserModal = ref(false);
                 const newUser = ref({ name: '', email: '', password: '', isAdmin: false });
                 const editingUser = ref(false);
@@ -1111,23 +1120,24 @@
 
                 // Methods
                 const login = () => {
-                    const user = users.value.find(u => u.email === loginEmail.value && u.password === loginPassword.value);
-                    if (user) {
-                        currentUser.value = { ...user };
-                        isLoggedIn.value = true;
-                        showLoginModal.value = false;
-                        loginError.value = '';
-                        loginEmail.value = '';
-                        loginPassword.value = '';
-                    } else {
-                        loginError.value = 'Invalid email or password. Please try again.';
-                    }
-                };
+            const user = users.value.find(u => u.email === loginEmail.value && u.password === loginPassword.value);
+            if (user) {
+                currentUser.value = { ...user };
+                isLoggedIn.value = true;
+                showLoginModal.value = false;
+                loginError.value = '';
+                loginEmail.value = '';
+                loginPassword.value = '';
+            } else {
+                loginError.value = 'Invalid email or password. Please try again.';
+            }
+        };
 
                 const logout = () => {
-                    isLoggedIn.value = false;
-                    currentUser.value = {};
-                };
+            isLoggedIn.value = false;
+            currentUser.value = {};
+            localStorage.removeItem('currentUser');
+        };
 
                 const openGuide = (guide) => {
                     selectedGuide.value = guide;
