@@ -6,1183 +6,361 @@
     <title>SAP Knowledge Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f9fafb;
         }
-        .hero-gradient {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        .hero-pattern {
+            background-color: #f0f4f8;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c5d1db' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
-        .card-hover {
+        .transition-all {
             transition: all 0.3s ease;
         }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        .step-item {
+            border-left: 3px solid #e2e8f0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .step-item:before {
+            content: '';
+            position: absolute;
+            left: -9px;
+            top: 0;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+        }
+        .image-upload-preview {
+            max-width: 300px;
+            max-height: 200px;
+            object-fit: contain;
+            margin-top: 10px;
+            border: 1px solid #e2e8f0;
         }
     </style>
 </head>
-<body>
-    <div id="app" v-cloak>
-        <!-- Navigation -->
-        <nav class="bg-white shadow-md">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <div class="flex-shrink-0 flex items-center">
-                            <svg class="h-8 w-auto text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <span class="ml-2 text-xl font-bold text-gray-800">SAP Knowledge Hub</span>
-                        </div>
-                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                            <a href="#" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" v-if="isLoggedIn">
-                                Home
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav id="navbar" class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="text-xl font-bold text-gray-800">SAP Knowledge Hub</span>
+            </div>
+            <div id="nav-links" class="hidden md:flex space-x-6">
+                <a href="index.php" class="text-gray-600 hover:text-blue-600 transition-all">Home</a>
+                <a href="about.php" class="text-gray-600 hover:text-blue-600 transition-all">About</a>
+                <a href="contact.php" class="text-gray-600 hover:text-blue-600 transition-all">Contact</a>
+                <a href="login.php" id="login-nav-btn" class="text-gray-600 hover:text-blue-600 transition-all">Login</a>
+                <a href="logout.php" id="logout-nav-btn" class="hidden text-gray-600 hover:text-blue-600 transition-all">Logout</a>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-600 hover:text-blue-600 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <a href="index.php" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">Home</a>
+            <a href="about.php" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">About</a>
+            <a href="contact.php" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">Contact</a>
+            <a href="login.php" id="login-mobile-btn" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">Login</a>
+            <a href="logout.php" id="logout-mobile-btn" class="hidden block py-2 px-4 text-gray-600 hover:bg-gray-100">Logout</a>
+        </div>
+    </nav>
+
+    <!-- PHP Files Structure -->
+    <!-- 
+    Project Structure:
+    - index.php (Home page)
+    - about.php (About page)
+    - contact.php (Contact page)
+    - login.php (Login page)
+    - logout.php (Logout handler)
+    - dashboard.php (User dashboard)
+    - admin/ (Admin directory)
+      - index.php (Admin dashboard)
+      - guides.php (Guide management)
+      - categories.php (Category management)
+      - guide-form.php (Create/edit guide)
+      - category-form.php (Create/edit category)
+    - includes/ (PHP includes)
+      - config.php (Database configuration)
+      - db.php (Database connection)
+      - functions.php (Helper functions)
+      - header.php (Common header)
+      - footer.php (Common footer)
+      - auth.php (Authentication functions)
+    - api/ (API endpoints)
+      - guides.php (Guide CRUD operations)
+      - categories.php (Category CRUD operations)
+      - steps.php (Step CRUD operations)
+    -->
+
+    <!-- Database Schema -->
+    <!--
+    -- users table
+    CREATE TABLE users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- categories table
+    CREATE TABLE categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        icon VARCHAR(50) NOT NULL DEFAULT '📄',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
+
+    -- guides table
+    CREATE TABLE guides (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        category_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+    );
+
+    -- steps table
+    CREATE TABLE steps (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        guide_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        image_path TEXT,
+        position INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (guide_id) REFERENCES guides(id) ON DELETE CASCADE
+    );
+
+    -- recently_viewed table
+    CREATE TABLE recently_viewed (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        guide_id INT NOT NULL,
+        viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (guide_id) REFERENCES guides(id) ON DELETE CASCADE,
+        UNIQUE KEY (user_id, guide_id)
+    );
+    -->
+
+    <!-- Main Content Area -->
+    <main id="main-content">
+        <!-- Home Page Content -->
+        <section id="home-page" class="block">
+            <div class="hero-pattern py-20">
+                <div class="container mx-auto px-4">
+                    <div class="max-w-3xl mx-auto text-center">
+                        <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Your Complete SAP Guide Repository</h1>
+                        <p class="text-xl text-gray-600 mb-8">Access step-by-step SAP guides and manuals to streamline your workflow and improve productivity.</p>
+                        <div class="flex flex-col sm:flex-row justify-center gap-4">
+                            <a href="login.php" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all text-center">
+                                Login to Access Guides
                             </a>
-                            <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" v-if="isLoggedIn">
-                                Guides
-                            </a>
-                            <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" v-if="isLoggedIn">
-                                About
+                            <a href="about.php" class="bg-white hover:bg-gray-100 text-blue-600 font-medium py-3 px-6 rounded-lg border border-blue-600 transition-all text-center">
+                                Learn More
                             </a>
                         </div>
                     </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:items-center">
-                        <div class="ml-3 relative" v-if="isLoggedIn">
-                            <div class="flex items-center">
-                                <span class="text-sm font-medium text-gray-700 mr-3">{{ currentUser.name }}</span>
-                                <button @click="logout" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                                    Logout
-                                </button>
+                </div>
+            </div>
+
+            <div class="py-16 bg-white">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Featured SAP Guide Categories</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- PHP code would fetch and display featured categories here -->
+                        <div class="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-all">
+                            <div class="bg-blue-100 rounded-full w-14 h-14 flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                </svg>
                             </div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Creating Purchase Orders</h3>
+                            <p class="text-gray-600 mb-4">Learn how to create and manage purchase orders efficiently in SAP.</p>
+                            <a href="login.php" class="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center">
+                                View Guides
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
                         </div>
-                        <div v-else class="flex space-x-4">
-                            <button @click="showLoginModal = true" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                                Login
-                            </button>
+                        <div class="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-all">
+                            <div class="bg-blue-100 rounded-full w-14 h-14 flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Invoice Clearance</h3>
+                            <p class="text-gray-600 mb-4">Step-by-step guides for processing and clearing invoices in SAP.</p>
+                            <a href="login.php" class="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center">
+                                View Guides
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
                         </div>
-                    </div>
-                    <div class="-mr-2 flex items-center sm:hidden">
-                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
-                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </button>
+                        <div class="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-all">
+                            <div class="bg-blue-100 rounded-full w-14 h-14 flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Material Master Setup</h3>
+                            <p class="text-gray-600 mb-4">Comprehensive guides for setting up and managing material master data.</p>
+                            <a href="login.php" class="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center">
+                                View Guides
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Mobile menu -->
-            <div class="sm:hidden" v-if="mobileMenuOpen">
-                <div class="pt-2 pb-3 space-y-1">
-                    <a href="#" class="bg-blue-50 border-blue-500 text-blue-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium" v-if="isLoggedIn">
-                        Home
-                    </a>
-                    <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium" v-if="isLoggedIn">
-                        Guides
-                    </a>
-                    <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium" v-if="isLoggedIn">
-                        About
-                    </a>
-                </div>
-                <div class="pt-4 pb-3 border-t border-gray-200" v-if="isLoggedIn">
-                    <div class="flex items-center px-4">
-                        <div class="ml-3">
-                            <div class="text-base font-medium text-gray-800">{{ currentUser.name }}</div>
-                            <div class="text-sm font-medium text-gray-500">{{ currentUser.email }}</div>
-                        </div>
+            <div class="py-16 bg-gray-50">
+                <div class="container mx-auto px-4">
+                    <div class="max-w-3xl mx-auto text-center">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">Why Use Our SAP Knowledge Hub?</h2>
+                        <p class="text-xl text-gray-600 mb-12">Our platform is designed to make SAP processes easier to understand and implement.</p>
                     </div>
-                    <div class="mt-3 space-y-1">
-                        <button @click="logout" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">
-                            Logout
-                        </button>
-                    </div>
-                </div>
-                <div class="pt-2 pb-3 border-t border-gray-200" v-else>
-                    <button @click="showLoginModal = true" class="block w-full text-left px-4 py-2 text-base font-medium text-blue-600 hover:text-blue-800 hover:bg-gray-100">
-                        Login
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <main>
-            <!-- Login Page (Default View) -->
-            <div v-if="!isLoggedIn" class="min-h-screen">
-                <!-- Hero Section -->
-                <div class="hero-gradient py-16 sm:py-24">
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         <div class="text-center">
-                            <h1 class="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl">
-                                <span class="block">SAP Knowledge Hub</span>
-                                <span class="block text-blue-200">Your Guide to SAP Excellence</span>
-                            </h1>
-                            <p class="mt-3 max-w-md mx-auto text-base text-blue-100 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-                                Access comprehensive step-by-step guides for all your SAP processes. Streamline your workflow and enhance productivity with our detailed manuals.
-                            </p>
-                            <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-                                <div class="rounded-md shadow">
-                                    <button @click="showLoginModal = true" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
-                                        Login to Access Guides
-                                    </button>
-                                </div>
+                            <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                </svg>
                             </div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Customizable</h3>
+                            <p class="text-gray-600">Guides can be tailored to your specific business processes.</p>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Features Section -->
-                <div class="py-12 bg-white">
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div class="lg:text-center">
-                            <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Features</h2>
-                            <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                                Everything you need for SAP processes
-                            </p>
-                            <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-                                Our platform provides comprehensive resources to help you navigate SAP with confidence.
-                            </p>
+                        <div class="text-center">
+                            <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Fast Access</h3>
+                            <p class="text-gray-600">Quick access to guides with centralized database storage.</p>
                         </div>
-
-                        <div class="mt-10">
-                            <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-                                <div class="relative">
-                                    <dt>
-                                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                            </svg>
-                                        </div>
-                                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Detailed Step-by-Step Guides</p>
-                                    </dt>
-                                    <dd class="mt-2 ml-16 text-base text-gray-500">
-                                        Access comprehensive instructions with screenshots for all SAP processes, from basic to advanced.
-                                    </dd>
-                                </div>
-
-                                <div class="relative">
-                                    <dt>
-                                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                                            </svg>
-                                        </div>
-                                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Organized Categories</p>
-                                    </dt>
-                                    <dd class="mt-2 ml-16 text-base text-gray-500">
-                                        Find what you need quickly with our well-structured categories for different SAP modules and processes.
-                                    </dd>
-                                </div>
-
-                                <div class="relative">
-                                    <dt>
-                                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                            </svg>
-                                        </div>
-                                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Secure Access</p>
-                                    </dt>
-                                    <dd class="mt-2 ml-16 text-base text-gray-500">
-                                        Protected content ensures your company's SAP procedures remain confidential and accessible only to authorized personnel.
-                                    </dd>
-                                </div>
-
-                                <div class="relative">
-                                    <dt>
-                                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                        </div>
-                                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Easy Content Management</p>
-                                    </dt>
-                                    <dd class="mt-2 ml-16 text-base text-gray-500">
-                                        Administrators can easily update guides and add new content to keep information current and relevant.
-                                    </dd>
-                                </div>
-                            </dl>
+                        <div class="text-center">
+                            <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Mobile Friendly</h3>
+                            <p class="text-gray-600">Access guides on any device, anywhere, anytime.</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Visual Guides</h3>
+                            <p class="text-gray-600">Step-by-step instructions with screenshots for clarity.</p>
                         </div>
                     </div>
                 </div>
             </div>
+        </section>
+    </main>
 
-            <!-- User Dashboard -->
-            <div v-if="isLoggedIn && !isAdmin" class="py-10">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h1 class="text-3xl font-bold text-gray-900">Welcome, {{ currentUser.name }}</h1>
-                    <p class="mt-2 text-sm text-gray-600">Access all SAP guides and manuals below.</p>
-                    
-                    <!-- Category Filter -->
-                    <div class="mt-6">
-                        <div class="sm:flex sm:items-center">
-                            <div class="sm:flex-auto">
-                                <h2 class="text-xl font-semibold text-gray-900">SAP Guides</h2>
-                            </div>
-                            <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-                                <div class="relative">
-                                    <select v-model="selectedCategory" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                                        <option value="">All Categories</option>
-                                        <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Search Bar -->
-                    <div class="mt-4">
-                        <div class="relative rounded-md shadow-sm">
-                            <input type="text" v-model="searchQuery" class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-4 pr-12 sm:text-sm border-gray-300 rounded-md" placeholder="Search guides...">
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Guides Grid -->
-                    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        <div v-for="guide in filteredGuides" :key="guide.id" class="card-hover bg-white overflow-hidden shadow rounded-lg">
-                            <div class="p-5">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                                        <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-5 w-0 flex-1">
-                                        <dt class="text-lg font-medium text-gray-900 truncate">
-                                            {{ guide.title }}
-                                        </dt>
-                                        <dd class="flex items-center text-sm text-gray-500">
-                                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">{{ guide.category }}</span>
-                                            <span>{{ guide.steps.length }} steps</span>
-                                        </dd>
-                                    </div>
-                                </div>
-                                <div class="mt-4">
-                                    <p class="text-sm text-gray-600 line-clamp-2">{{ guide.description }}</p>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 px-5 py-3">
-                                <div class="text-sm">
-                                    <button @click="openGuide(guide)" class="font-medium text-blue-600 hover:text-blue-500">
-                                        View Guide <span aria-hidden="true">&rarr;</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div v-if="filteredGuides.length === 0" class="mt-6 text-center py-12 bg-white rounded-lg shadow">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No guides found</h3>
-                        <p class="mt-1 text-sm text-gray-500">
-                            Try adjusting your search or filter to find what you're looking for.
-                        </p>
+                        <span class="text-xl font-bold">SAP Knowledge Hub</span>
+                    </div>
+                    <p class="mt-2 text-gray-400 max-w-xs">Your comprehensive resource for SAP guides and documentation.</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Quick Links</h3>
+                        <ul class="space-y-2">
+                            <li><a href="index.php" class="text-gray-400 hover:text-white transition-all">Home</a></li>
+                            <li><a href="about.php" class="text-gray-400 hover:text-white transition-all">About</a></li>
+                            <li><a href="contact.php" class="text-gray-400 hover:text-white transition-all">Contact</a></li>
+                            <li><a href="login.php" class="text-gray-400 hover:text-white transition-all">Login</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Resources</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-all">FAQ</a></li>
+                            <li><a href="contact.php" class="text-gray-400 hover:text-white transition-all">Support</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-all">Privacy Policy</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-all">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Contact</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-center text-gray-400">
+                                <i class="fas fa-envelope mr-2"></i>
+                                support@sapknowledgehub.com
+                            </li>
+                            <li class="flex items-center text-gray-400">
+                                <i class="fas fa-phone mr-2"></i>
+                                +1 (555) 123-4567
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
-
-            <!-- Admin Dashboard -->
-            <div v-if="isLoggedIn && isAdmin" class="py-10">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between items-center">
-                        <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                        <button @click="showAddGuideModal = true" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            <svg class="mr-2 -ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                            Add New Guide
-                        </button>
-                    </div>
-                    <p class="mt-2 text-sm text-gray-600">Manage all SAP guides and manuals from this dashboard.</p>
-                    
-                    <!-- Admin Tabs -->
-                    <div class="mt-6">
-                        <div class="sm:hidden">
-                            <label for="tabs" class="sr-only">Select a tab</label>
-                            <select id="tabs" v-model="activeAdminTab" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                                <option value="guides">Guides</option>
-                                <option value="categories">Categories</option>
-                                <option value="users">Users</option>
-                            </select>
-                        </div>
-                        <div class="hidden sm:block">
-                            <div class="border-b border-gray-200">
-                                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                                    <button @click="activeAdminTab = 'guides'" :class="[activeAdminTab === 'guides' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300', 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm']">
-                                        Guides
-                                    </button>
-                                    <button @click="activeAdminTab = 'categories'" :class="[activeAdminTab === 'categories' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300', 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm']">
-                                        Categories
-                                    </button>
-                                    <button @click="activeAdminTab = 'users'" :class="[activeAdminTab === 'users' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300', 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm']">
-                                        Users
-                                    </button>
-                                </nav>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Guides Tab Content -->
-                    <div v-if="activeAdminTab === 'guides'" class="mt-6">
-                        <!-- Search Bar -->
-                        <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                            <div class="flex-grow relative rounded-md shadow-sm">
-                                <input type="text" v-model="adminSearchQuery" class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-4 pr-12 sm:text-sm border-gray-300 rounded-md" placeholder="Search guides...">
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="sm:w-64">
-                                <select v-model="adminSelectedCategory" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                                    <option value="">All Categories</option>
-                                    <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Guides Table -->
-                        <div class="mt-4 flex flex-col">
-                            <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                                <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                                        <table class="min-w-full divide-y divide-gray-300">
-                                            <thead class="bg-gray-50">
-                                                <tr>
-                                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Title</th>
-                                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Category</th>
-                                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Steps</th>
-                                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Last Updated</th>
-                                                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                                        <span class="sr-only">Actions</span>
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-200 bg-white">
-                                                <tr v-for="guide in filteredAdminGuides" :key="guide.id">
-                                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ guide.title }}</td>
-                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">{{ guide.category }}</span>
-                                                    </td>
-                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ guide.steps.length }}</td>
-                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ guide.lastUpdated }}</td>
-                                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                                        <button @click="editGuide(guide)" class="text-blue-600 hover:text-blue-900 mr-4">Edit</button>
-                                                        <button @click="deleteGuide(guide.id)" class="text-red-600 hover:text-red-900">Delete</button>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Empty State -->
-                        <div v-if="filteredAdminGuides.length === 0" class="mt-6 text-center py-12 bg-white rounded-lg shadow">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">No guides found</h3>
-                            <p class="mt-1 text-sm text-gray-500">
-                                Get started by creating a new guide.
-                            </p>
-                            <div class="mt-6">
-                                <button @click="showAddGuideModal = true" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    <svg class="mr-2 -ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Add New Guide
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Categories Tab Content -->
-                    <div v-if="activeAdminTab === 'categories'" class="mt-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-lg font-medium text-gray-900">Manage Categories</h2>
-                            <button @click="showAddCategoryModal = true" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                <svg class="mr-2 -ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                                Add Category
-                            </button>
-                        </div>
-                        
-                        <div class="bg-white shadow overflow-hidden sm:rounded-md">
-                            <ul class="divide-y divide-gray-200">
-                                <li v-for="(category, index) in categories" :key="index">
-                                    <div class="px-4 py-4 flex items-center sm:px-6">
-                                        <div class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
-                                            <div>
-                                                <p class="text-sm font-medium text-blue-600 truncate">{{ category }}</p>
-                                                <p class="mt-1 text-sm text-gray-500">
-                                                    {{ getCategoryGuideCount(category) }} guides
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="ml-5 flex-shrink-0">
-                                            <button @click="editCategory(index)" class="text-blue-600 hover:text-blue-900 mr-4">Edit</button>
-                                            <button @click="deleteCategory(index)" class="text-red-600 hover:text-red-900">Delete</button>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Users Tab Content -->
-                    <div v-if="activeAdminTab === 'users'" class="mt-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-lg font-medium text-gray-900">Manage Users</h2>
-                            <button @click="showAddUserModal = true" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                <svg class="mr-2 -ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                                Add User
-                            </button>
-                        </div>
-                        
-                        <div class="flex flex-col">
-                            <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                                <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                                        <table class="min-w-full divide-y divide-gray-300">
-                                            <thead class="bg-gray-50">
-                                                <tr>
-                                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Name</th>
-                                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
-                                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Role</th>
-                                                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                                        <span class="sr-only">Actions</span>
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-200 bg-white">
-                                                <tr v-for="user in users" :key="user.id">
-                                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ user.name }}</td>
-                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ user.email }}</td>
-                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        <span :class="[user.isAdmin ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800', 'text-xs font-semibold px-2.5 py-0.5 rounded']">
-                                                            {{ user.isAdmin ? 'Admin' : 'User' }}
-                                                        </span>
-                                                    </td>
-                                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                                        <button @click="editUser(user)" class="text-blue-600 hover:text-blue-900 mr-4">Edit</button>
-                                                        <button @click="deleteUser(user.id)" class="text-red-600 hover:text-red-900">Delete</button>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+                <p>&copy; 2023 SAP Knowledge Hub. All rights reserved.</p>
             </div>
+        </div>
+    </footer>
 
-            <!-- Guide Detail View -->
-            <div v-if="selectedGuide" class="fixed inset-0 overflow-y-auto z-50">
-                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-                    </div>
-                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div class="sm:flex sm:items-start">
-                                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                    <div class="flex justify-between items-center">
-                                        <h3 class="text-2xl leading-6 font-bold text-gray-900" id="modal-title">
-                                            {{ selectedGuide.title }}
-                                        </h3>
-                                        <button @click="closeGuide" class="text-gray-400 hover:text-gray-500">
-                                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div class="mt-2">
-                                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">{{ selectedGuide.category }}</span>
-                                        <p class="text-sm text-gray-500 mt-2">{{ selectedGuide.description }}</p>
-                                    </div>
-                                    
-                                    <div class="mt-6">
-                                        <div class="border-t border-gray-200 pt-6">
-                                            <div v-for="(step, index) in selectedGuide.steps" :key="index" class="mb-8">
-                                                <div class="flex items-center">
-                                                    <div class="flex-shrink-0 bg-blue-500 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold">
-                                                        {{ index + 1 }}
-                                                    </div>
-                                                    <h4 class="ml-3 text-lg font-medium text-gray-900">{{ step.title }}</h4>
-                                                </div>
-                                                <div class="mt-2 ml-11">
-                                                    <p class="text-gray-600">{{ step.description }}</p>
-                                                    <div v-if="step.image" class="mt-4 border border-gray-200 rounded-lg overflow-hidden">
-                                                        <img :src="step.image" :alt="'Step ' + (index + 1)" class="w-full h-auto">
-                                                    </div>
-                                                    <div v-if="step.notes" class="mt-3 bg-yellow-50 p-3 rounded-md">
-                                                        <p class="text-sm text-yellow-700"><strong>Note:</strong> {{ step.notes }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button @click="closeGuide" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Login Modal -->
-            <div v-if="showLoginModal" class="fixed z-10 inset-0 overflow-y-auto">
-                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-                    </div>
-                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div class="sm:flex sm:items-start">
-                                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                        Login to SAP Knowledge Hub
-                                    </h3>
-                                    <div class="mt-4">
-                                        <div class="space-y-6">
-                                            <div>
-                                                <label for="email" class="block text-sm font-medium text-gray-700">
-                                                    Email address
-                                                </label>
-                                                <div class="mt-1">
-                                                    <input v-model="loginEmail" id="email" name="email" type="email" autocomplete="email" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label for="password" class="block text-sm font-medium text-gray-700">
-                                                    Password
-                                                </label>
-                                                <div class="mt-1">
-                                                    <input v-model="loginPassword" id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                </div>
-                                            </div>
-
-                                            <div v-if="loginError" class="bg-red-50 border-l-4 border-red-400 p-4">
-                                                <div class="flex">
-                                                    <div class="flex-shrink-0">
-                                                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                    <div class="ml-3">
-                                                        <p class="text-sm text-red-700">
-                                                            {{ loginError }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="flex items-center justify-between">
-                                                <div class="flex items-center">
-                                                    <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                                    <label for="remember-me" class="ml-2 block text-sm text-gray-900">
-                                                        Remember me
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button @click="login" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                Sign in
-                            </button>
-                            <button @click="showLoginModal = false" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add/Edit Guide Modal -->
-            <div v-if="showAddGuideModal" class="fixed z-10 inset-0 overflow-y-auto">
-                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-                    </div>
-                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div class="sm:flex sm:items-start">
-                                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                        {{ editingGuide ? 'Edit Guide' : 'Add New Guide' }}
-                                    </h3>
-                                    <div class="mt-4">
-                                        <div class="space-y-6">
-                                            <div>
-                                                <label for="guide-title" class="block text-sm font-medium text-gray-700">
-                                                    Title
-                                                </label>
-                                                <div class="mt-1">
-                                                    <input v-model="newGuide.title" id="guide-title" name="guide-title" type="text" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label for="guide-category" class="block text-sm font-medium text-gray-700">
-                                                    Category
-                                                </label>
-                                                <div class="mt-1">
-                                                    <select v-model="newGuide.category" id="guide-category" name="guide-category" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                        <option value="">Select a category</option>
-                                                        <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label for="guide-description" class="block text-sm font-medium text-gray-700">
-                                                    Description
-                                                </label>
-                                                <div class="mt-1">
-                                                    <textarea v-model="newGuide.description" id="guide-description" name="guide-description" rows="3" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700">
-                                                    Steps
-                                                </label>
-                                                <div class="mt-1 space-y-4">
-                                                    <div v-for="(step, index) in newGuide.steps" :key="index" class="border border-gray-200 rounded-md p-4">
-                                                        <div class="flex justify-between items-center mb-2">
-                                                            <h4 class="text-sm font-medium text-gray-900">Step {{ index + 1 }}</h4>
-                                                            <button @click="removeStep(index)" class="text-red-600 hover:text-red-900">
-                                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                        <div class="space-y-3">
-                                                            <div>
-                                                                <label :for="'step-title-' + index" class="block text-xs font-medium text-gray-700">
-                                                                    Title
-                                                                </label>
-                                                                <input v-model="step.title" :id="'step-title-' + index" type="text" class="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                            </div>
-                                                            <div>
-                                                                <label :for="'step-description-' + index" class="block text-xs font-medium text-gray-700">
-                                                                    Description
-                                                                </label>
-                                                                <textarea v-model="step.description" :id="'step-description-' + index" rows="2" class="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                                                            </div>
-                                                            <div>
-                                                                <label :for="'step-image-' + index" class="block text-xs font-medium text-gray-700">
-                                                                    Image URL (optional)
-                                                                </label>
-                                                                <input v-model="step.image" :id="'step-image-' + index" type="text" class="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                            </div>
-                                                            <div>
-                                                                <label :for="'step-notes-' + index" class="block text-xs font-medium text-gray-700">
-                                                                    Notes (optional)
-                                                                </label>
-                                                                <textarea v-model="step.notes" :id="'step-notes-' + index" rows="2" class="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <button @click="addStep" type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                        <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                                        </svg>
-                                                        Add Step
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button @click="saveGuide" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                {{ editingGuide ? 'Update Guide' : 'Add Guide' }}
-                            </button>
-                            <button @click="cancelGuideEdit" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add/Edit Category Modal -->
-            <div v-if="showAddCategoryModal" class="fixed z-10 inset-0 overflow-y-auto">
-                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-                    </div>
-                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div class="sm:flex sm:items-start">
-                                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                        {{ editingCategoryIndex !== null ? 'Edit Category' : 'Add New Category' }}
-                                    </h3>
-                                    <div class="mt-4">
-                                        <div>
-                                            <label for="category-name" class="block text-sm font-medium text-gray-700">
-                                                Category Name
-                                            </label>
-                                            <div class="mt-1">
-                                                <input v-model="newCategoryName" id="category-name" name="category-name" type="text" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button @click="saveCategory" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                {{ editingCategoryIndex !== null ? 'Update Category' : 'Add Category' }}
-                            </button>
-                            <button @click="cancelCategoryEdit" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add/Edit User Modal -->
-            <div v-if="showAddUserModal" class="fixed z-10 inset-0 overflow-y-auto">
-                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-                    </div>
-                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div class="sm:flex sm:items-start">
-                                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                        {{ editingUser ? 'Edit User' : 'Add New User' }}
-                                    </h3>
-                                    <div class="mt-4">
-                                        <div class="space-y-6">
-                                            <div>
-                                                <label for="user-name" class="block text-sm font-medium text-gray-700">
-                                                    Name
-                                                </label>
-                                                <div class="mt-1">
-                                                    <input v-model="newUser.name" id="user-name" name="user-name" type="text" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label for="user-email" class="block text-sm font-medium text-gray-700">
-                                                    Email
-                                                </label>
-                                                <div class="mt-1">
-                                                    <input v-model="newUser.email" id="user-email" name="user-email" type="email" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label for="user-password" class="block text-sm font-medium text-gray-700">
-                                                    Password
-                                                </label>
-                                                <div class="mt-1">
-                                                    <input v-model="newUser.password" id="user-password" name="user-password" type="password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                </div>
-                                            </div>
-
-                                            <div class="flex items-center">
-                                                <input v-model="newUser.isAdmin" id="user-admin" name="user-admin" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                                <label for="user-admin" class="ml-2 block text-sm text-gray-900">
-                                                    Admin User
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button @click="saveUser" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                {{ editingUser ? 'Update User' : 'Add User' }}
-                            </button>
-                            <button @click="cancelUserEdit" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- Footer -->
-        <footer class="bg-white">
-            <div class="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
-                <nav class="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
-                    <div class="px-5 py-2">
-                        <a href="#" class="text-base text-gray-500 hover:text-gray-900">
-                            About
-                        </a>
-                    </div>
-
-                    <div class="px-5 py-2">
-                        <a href="#" class="text-base text-gray-500 hover:text-gray-900">
-                            Contact
-                        </a>
-                    </div>
-
-                    <div class="px-5 py-2">
-                        <a href="#" class="text-base text-gray-500 hover:text-gray-900">
-                            Help
-                        </a>
-                    </div>
-                </nav>
-                <p class="mt-8 text-center text-base text-gray-400">
-                    &copy; 2023 SAP Knowledge Hub. All rights reserved.
-                </p>
-            </div>
-        </footer>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
+        <span id="toast-message">Notification message</span>
     </div>
 
     <script>
-        const { createApp, ref, computed, watch } = Vue;
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
 
-        createApp({
-            setup() {
-                // Load from localStorage or set default values
-                const storedUsers = JSON.parse(localStorage.getItem('users')) || [
-                    { id: 1, name: 'Admin User', email: 'admin@example.com', password: 'admin123', isAdmin: true },
-                    { id: 2, name: 'John Doe', email: 'john@example.com', password: 'user123', isAdmin: false },
-                    { id: 3, name: 'Jane Smith', email: 'jane@example.com', password: 'user123', isAdmin: false }
-                ];
-                const storedGuides = JSON.parse(localStorage.getItem('guides')) || [];
-                const storedCategories = JSON.parse(localStorage.getItem('categories')) || [
-                    'Creating Purchase Orders', 'Invoice Clearance', 'Material Master Setup', 'Financial Reporting', 'Inventory Management', 'HR Processes'
-                ];
-                const storedCurrentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-
-                // Authentication
-                const isLoggedIn = ref(!!storedCurrentUser);
-        const currentUser = ref(storedCurrentUser || {});
-                                const showLoginModal = ref(false);
-        const loginEmail = ref('');
-        const loginPassword = ref('');
-        const loginError = ref('');
-        const mobileMenuOpen = ref(false);
-        const isAdmin = computed(() => currentUser.value.isAdmin === true);
-
-                // Watchers to persist data
-        watch(users, (val) => localStorage.setItem('users', JSON.stringify(val)), { deep: true });
-        watch(guides, (val) => localStorage.setItem('guides', JSON.stringify(val)), { deep: true });
-        watch(categories, (val) => localStorage.setItem('categories', JSON.stringify(val)), { deep: true });
-        watch(currentUser, (val) => localStorage.setItem('currentUser', JSON.stringify(val)));
-
-                // User Management
-                                const showAddUserModal = ref(false);
-                const newUser = ref({ name: '', email: '', password: '', isAdmin: false });
-                const editingUser = ref(false);
-
-                // Categories
-                                const showAddCategoryModal = ref(false);
-                const newCategoryName = ref('');
-                const editingCategoryIndex = ref(null);
-
-                // Guides
-                                const selectedCategory = ref('');
-                const searchQuery = ref('');
-                const adminSearchQuery = ref('');
-                const adminSelectedCategory = ref('');
-                const selectedGuide = ref(null);
-                const showAddGuideModal = ref(false);
-                const newGuide = ref({
-                    title: '',
-                    category: '',
-                    description: '',
-                    steps: []
-                });
-                const editingGuide = ref(false);
-                const activeAdminTab = ref('guides');
-
-                // Computed properties
-                const filteredGuides = computed(() => {
-                    let result = guides.value;
-                    
-                    if (selectedCategory.value) {
-                        result = result.filter(guide => guide.category === selectedCategory.value);
-                    }
-                    
-                    if (searchQuery.value) {
-                        const query = searchQuery.value.toLowerCase();
-                        result = result.filter(guide => 
-                            guide.title.toLowerCase().includes(query) || 
-                            guide.description.toLowerCase().includes(query)
-                        );
-                    }
-                    
-                    return result;
-                });
-
-                const filteredAdminGuides = computed(() => {
-                    let result = guides.value;
-                    
-                    if (adminSelectedCategory.value) {
-                        result = result.filter(guide => guide.category === adminSelectedCategory.value);
-                    }
-                    
-                    if (adminSearchQuery.value) {
-                        const query = adminSearchQuery.value.toLowerCase();
-                        result = result.filter(guide => 
-                            guide.title.toLowerCase().includes(query) || 
-                            guide.description.toLowerCase().includes(query)
-                        );
-                    }
-                    
-                    return result;
-                });
-
-                // Methods
-                const login = () => {
-            const user = users.value.find(u => u.email === loginEmail.value && u.password === loginPassword.value);
-            if (user) {
-                currentUser.value = { ...user };
-                isLoggedIn.value = true;
-                showLoginModal.value = false;
-                loginError.value = '';
-                loginEmail.value = '';
-                loginPassword.value = '';
-            } else {
-                loginError.value = 'Invalid email or password. Please try again.';
-            }
-        };
-
-                const logout = () => {
-            isLoggedIn.value = false;
-            currentUser.value = {};
-            localStorage.removeItem('currentUser');
-        };
-
-                const openGuide = (guide) => {
-                    selectedGuide.value = guide;
-                };
-
-                const closeGuide = () => {
-                    selectedGuide.value = null;
-                };
-
-                const addStep = () => {
-                    newGuide.value.steps.push({
-                        title: '',
-                        description: '',
-                        image: '',
-                        notes: ''
-                    });
-                };
-
-                const removeStep = (index) => {
-                    newGuide.value.steps.splice(index, 1);
-                };
-
-                const editGuide = (guide) => {
-                    newGuide.value = JSON.parse(JSON.stringify(guide));
-                    editingGuide.value = true;
-                    showAddGuideModal.value = true;
-                };
-
-                const saveGuide = () => {
-                    if (editingGuide.value) {
-                        const index = guides.value.findIndex(g => g.id === newGuide.value.id);
-                        if (index !== -1) {
-                            newGuide.value.lastUpdated = new Date().toISOString().split('T')[0];
-                            guides.value[index] = { ...newGuide.value };
-                        }
-                    } else {
-                        const newId = Math.max(...guides.value.map(g => g.id), 0) + 1;
-                        guides.value.push({
-                            ...newGuide.value,
-                            id: newId,
-                            lastUpdated: new Date().toISOString().split('T')[0]
-                        });
-                    }
-                    cancelGuideEdit();
-                };
-
-                const cancelGuideEdit = () => {
-                    newGuide.value = {
-                        title: '',
-                        category: '',
-                        description: '',
-                        steps: []
-                    };
-                    editingGuide.value = false;
-                    showAddGuideModal.value = false;
-                };
-
-                const deleteGuide = (id) => {
-                    if (confirm('Are you sure you want to delete this guide?')) {
-                        const index = guides.value.findIndex(g => g.id === id);
-                        if (index !== -1) {
-                            guides.value.splice(index, 1);
-                        }
-                    }
-                };
-
-                const editCategory = (index) => {
-                    newCategoryName.value = categories.value[index];
-                    editingCategoryIndex.value = index;
-                    showAddCategoryModal.value = true;
-                };
-
-                const saveCategory = () => {
-                    if (editingCategoryIndex.value !== null) {
-                        categories.value[editingCategoryIndex.value] = newCategoryName.value;
-                    } else {
-                        categories.value.push(newCategoryName.value);
-                    }
-                    cancelCategoryEdit();
-                };
-
-                const cancelCategoryEdit = () => {
-                    newCategoryName.value = '';
-                    editingCategoryIndex.value = null;
-                    showAddCategoryModal.value = false;
-                };
-
-                const deleteCategory = (index) => {
-                    if (confirm('Are you sure you want to delete this category? This will not delete guides in this category.')) {
-                        categories.value.splice(index, 1);
-                    }
-                };
-
-                const getCategoryGuideCount = (category) => {
-                    return guides.value.filter(g => g.category === category).length;
-                };
-
-                const editUser = (user) => {
-                    newUser.value = { ...user };
-                    editingUser.value = true;
-                    showAddUserModal.value = true;
-                };
-
-                const saveUser = () => {
-                    if (editingUser.value) {
-                        const index = users.value.findIndex(u => u.id === newUser.value.id);
-                        if (index !== -1) {
-                            users.value[index] = { ...newUser.value };
-                        }
-                    } else {
-                        const newId = Math.max(...users.value.map(u => u.id), 0) + 1;
-                        users.value.push({
-                            ...newUser.value,
-                            id: newId
-                        });
-                    }
-                    cancelUserEdit();
-                };
-
-                const cancelUserEdit = () => {
-                    newUser.value = { name: '', email: '', password: '', isAdmin: false };
-                    editingUser.value = false;
-                    showAddUserModal.value = false;
-                };
-
-                const deleteUser = (id) => {
-                    if (confirm('Are you sure you want to delete this user?')) {
-                        const index = users.value.findIndex(u => u.id === id);
-                        if (index !== -1) {
-                            users.value.splice(index, 1);
-                        }
-                    }
-                };
-
-                return {
-                    // Authentication
-                    isLoggedIn,
-                    currentUser,
-                    showLoginModal,
-                    loginEmail,
-                    loginPassword,
-                    loginError,
-                    isAdmin,
-                    mobileMenuOpen,
-                    login,
-                    logout,
-
-                    // User Management
-                    users,
-                    showAddUserModal,
-                    newUser,
-                    editingUser,
-                    editUser,
-                    saveUser,
-                    cancelUserEdit,
-                    deleteUser,
-
-                    // Categories
-                    categories,
-                    showAddCategoryModal,
-                    newCategoryName,
-                    editingCategoryIndex,
-                    editCategory,
-                    saveCategory,
-                    cancelCategoryEdit,
-                    deleteCategory,
-                    getCategoryGuideCount,
-
-                    // Guides
-                    guides,
-                    selectedCategory,
-                    searchQuery,
-                    adminSearchQuery,
-                    adminSelectedCategory,
-                    filteredGuides,
-                    filteredAdminGuides,
-                    selectedGuide,
-                    showAddGuideModal,
-                    newGuide,
-                    editingGuide,
-                    activeAdminTab,
-                    openGuide,
-                    closeGuide,
-                    addStep,
-                    removeStep,
-                    editGuide,
-                    saveGuide,
-                    cancelGuideEdit,
-                    deleteGuide
-                };
-            }
-        }).mount('#app');
+        // Toast notification function
+        function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, duration);
+        }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9622c7157354ce0a',t:'MTc1MzAxNzg1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'962bc26e9058fe8c',t:'MTc1MzExMjAzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
